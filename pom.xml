@@ -84,6 +84,16 @@
 		        <descriptorRefs>
 		          <descriptorRef>jar-with-dependencies</descriptorRef>
 		        </descriptorRefs>
+		        <archive>
+		          <manifest>
+		            <addClasspath>true</addClasspath>
+		            <classpathPrefix>lib/</classpathPrefix>
+		            <mainClass>com.tlw.bottletracker.App</mainClass>
+		          </manifest>
+		          <manifestEntries>
+		          	<Class-Path>.</Class-Path>
+		          </manifestEntries>
+		        </archive>
 		      </configuration>
 		    </execution>
 		  </executions>
