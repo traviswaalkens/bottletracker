@@ -3,7 +3,7 @@ package com.tlw.bottletracker;
 import javax.mail.Address;
 
 public class MessageFilter
-{
+{ 
   private static String subjectPattern = "Bottle Event Alert";
   private static String fromPattern = "KidReports Notifier <noreply@kidreports.com>";
   
