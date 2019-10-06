@@ -98,9 +98,8 @@ public class MessageReader {
 		
 		Calendar c = Calendar.getInstance(); 
 		c.setTime(time);
-		
-		//String regex = "<li><i class=\\\"byline alertTime\\\"[^>]+>(\\d+):(\\d+) ([AP]M)</i>\\s+Bottle\\s+-\\s+(\\d)\\s*(?:\\s(\\d)/(\\d))? oz"; 
-		String regex = "(\\d+):(\\d+) ([AP]M)</i>\\s+Bottle\\s+-\\s+(\\d)\\s*(?:\\s(\\d)/(\\d) oz)?,";
+ 
+		String regex = "(\\d+):(\\d+) ([AP]M)</i>\\s+Bottle\\s+-\\s+(\\d)\\s*(?:\\s(\\d)/(\\d)|(\\.\\d))?(?:\\s*oz)?,";
 		
 		Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher( contents ); 
@@ -120,7 +119,13 @@ public class MessageReader {
 			time = c.getTime();
 			
 			ounces += Integer.parseInt( m.group(4 ) ); 
-			if( m.group(5) != null ) {
+			if( m.group(7) != null ) {
+				// ".5";
+				float p1; 
+				p1 = Float.parseFloat( m.group(7) );
+				ounces += p1;
+			}
+			else if( m.group(5) != null ) {
 				float p1, p2, p3; 
 				p1 = Float.parseFloat( m.group(5) );
 				p2 = Float.parseFloat(m.group(6) );
@@ -131,7 +136,7 @@ public class MessageReader {
 			isValid = true; 
 		} else {
 			ounces = 0;
-			time = null;
+			time = null;			
 		}
 	}
 }

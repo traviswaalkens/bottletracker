@@ -1,5 +1,7 @@
 package com.tlw.bottletracker;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.TreeSet;
@@ -45,6 +47,8 @@ public class App {
       Folder inbox = store.getFolder("INBOX");
       inbox.open(Folder.READ_WRITE);
       
+      // TODO (Eclipse) add code template
+      // TODO set up receptacle folder for completed messages.
       // Folder receptacle = store.getFolder( "recorded_events");
       // receptacle.open(Folder.READ_WRITE);
       
@@ -55,7 +59,7 @@ public class App {
       System.out.println("found " + messages.length + " messages ");
       
       MessageFilter messageFilter = new MessageFilter();
-      int max = 50;
+      int max = 100;
       for (int i = 0; i < max; i++) {    	  
     	  
         Message message = messages[messages.length - i - 1];
@@ -63,32 +67,34 @@ public class App {
         String subject = message.getSubject();
         
         System.out.println("Checking- " + subject + " by " + from[0] );
-        
-        if( messageFilter.matches(subject, from) ) {        	
-        	message.setFlag( Flags.Flag.SEEN, true);
+                
+        // TODO: Alysha wants it to handle diaper events too.
+        if( messageFilter.matches(subject, from) ) {
+        	// TODO (Eclipse) auto trip trailing spaces? 
+        	/* TODO: parse message for ounces and time, execute save to baby stats transaction. Move completed item to receptacle  */
+        	DateFormat df = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm" );        	
+        	
+        	MessageReader mr= new MessageReader( message );
+        	if( mr.isValid ) {
+        		System.out.println( String.format("%.2f Ounces @ %s", mr.ounces, df.format( mr.time ) ) );
+        	} else {
+        		System.out.println( "Message doesn't match." );
+        		System.out.println( mr.contents ); 
+        	}
         } else {
         	Message[] tempMessages = new Message[] {message}; 
         	
         	try {
-        		inbox.copyMessages( tempMessages, archive );        		
+        		inbox.copyMessages( tempMessages, archive );
+        		// TODO only delete if copy succeeds.  How to tell if copy worked? 
         		inbox.setFlags(tempMessages, new Flags( Flags.Flag.DELETED ), true );        		
         	} catch (Exception ex ) {
         		System.out.println( "Failed copy or delete message:"+ ex.getMessage() ); 
         	}
         }
-        /*
-		folder.copyMessages(msgs, dfolder);
-		folder.setFlags(msgs, new Flags(Flags.Flag.DELETED), true);
-
-		// Dump out the Flags of the moved messages, to insure that
-		// all got deleted
-		for (int i = 0; i < msgs.length; i++) {
-		    if (!msgs[i].isSet(Flags.Flag.DELETED))
-			System.out.println("Message # " + msgs[i] + 
-						" not deleted");
-		}
-		*/
       }
+      
+      System.out.println( "Done." );
 
       inbox.close(false);
       // receptacle.close(false);

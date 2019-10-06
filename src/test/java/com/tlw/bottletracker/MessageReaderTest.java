@@ -23,6 +23,11 @@ public class MessageReaderTest {
 	private static Message validMessage001;
 	private static Message validMessage002;
 	private static Message validMessage003; 
+	private static Message validMessage004; 
+	private static Message validMessage005; 
+	private static Message validMessage006; 
+	private static Message validMessage007; 
+	
 	private static Message invalidMessage001;
 	
 	@Before
@@ -51,7 +56,7 @@ public class MessageReaderTest {
 				"\r\n" + 
 				"                                                                                         6 1/2 oz, \r\n" + 
 				"                                             Formula\r\n" + 
-				"                                        (Ida Gaddy)\r\n" + 
+				"                                        (Joe Daddy)\r\n" + 
 				"                            \r\n" + 
 				"\r\n" + 
 				"\r\n" + 
@@ -61,6 +66,61 @@ public class MessageReaderTest {
 				"     \r\n" + 
 				"\r\n" + 
 				"</li>"); 
+		validMessage004 = new MimeMessage(session);
+		validMessage004.setText( "<li><i class=\"byline alertTime\" style=\"border-right: 1px solid grey;padding-right: 5px;float: left;clear: left;margin-right: 5px;\">02:15 PM</i>\r\n" + 
+				"    Bottle  -\r\n" + 
+				"\r\n" + 
+				"                                                                                         1, \r\n" + 
+				"                                             Formula\r\n" + 
+				"                                        (Ruth Less)");
+		
+		validMessage005 = new MimeMessage(session); 
+		validMessage005.setText( "<li><i class=\"byline alertTime\" style=\"border-right: 1px solid grey;padding-right: 5px;float: left;clear: left;margin-right: 5px;\">01:18 PM</i>\r\n" + 
+				"    Bottle  -\r\n" + 
+				"\r\n" + 
+				"                                                                                         6 oz, \r\n" + 
+				"                                             Formula\r\n" + 
+				"                                        (Jasmin Espana)\r\n" + 
+				"                            \r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"\r\n" );
+		
+		validMessage006 = new MimeMessage(session); 
+		validMessage006.setText("<li><i class=\"byline alertTime\" style=\"border-right: 1px solid grey;padding-right: 5px;float: left;clear: left;margin-right: 5px;\">01:02 PM</i>\r\n" + 
+				"    Bottle  -\r\n" + 
+				"\r\n" + 
+				"                                                                                         6 1/2oz, \r\n" + 
+				"                                             Formula\r\n" + 
+				"                                        (Crystal Jay)\r\n" + 
+				"                            \r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"             \r\n" + 
+				"     \r\n" + 
+				"     \r\n" + 
+				"\r\n" + 
+				"</li>");
+	
+		validMessage007 = new MimeMessage(session); 
+		validMessage007.setText("<li><i class=\"byline alertTime\" style=\"border-right: 1px solid grey;padding-right: 5px;float: left;clear: left;margin-right: 5px;\">04:03 PM</i>\r\n" + 
+				"    Bottle  -\r\n" + 
+				"\r\n" + 
+				"                                                                                         6.5, \r\n" + 
+				"                                             Formula\r\n" + 
+				"                                        (Crystal Jay)\r\n" + 
+				"                            \r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"        <p style=\"background-color:  #ACFCFD;padding: 5px;border-radius: 4px;font-weight: bold;\" class=\"emailAlertNotes\">Notes: Offered her 6.5oz</p>\r\n" + 
+				"             \r\n" + 
+				"     \r\n" + 
+				"     \r\n" + 
+				"\r\n" + 
+				"</li>"); 
+		
 	}
 
 	@Test
@@ -122,6 +182,58 @@ public class MessageReaderTest {
 		c.setTime( new Date() );
 		c.set(Calendar.HOUR_OF_DAY, 8 );
 		c.set(Calendar.MINUTE, 44 );
+		assertTrue( Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000 );
+	}
+	
+	@Test
+	public void testMessage4() throws MessagingException {
+		MessageReader mr = new MessageReader( validMessage004 );
+		assertTrue( "Message 4 is not valid", mr.isValid );		
+		assertEquals( 1, mr.ounces, .0001 );
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime( new Date() );
+		c.set(Calendar.HOUR_OF_DAY, 14 );
+		c.set(Calendar.MINUTE, 15 );
+		assertTrue( Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000 );
+	}
+	
+	@Test
+	public void testMessage5() throws MessagingException {
+		MessageReader mr = new MessageReader( validMessage005 );
+		assertTrue( "Message 5 is not valid", mr.isValid );		
+		assertEquals( 6, mr.ounces, .0001 );
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime( new Date() );
+		c.set(Calendar.HOUR_OF_DAY, 13 );
+		c.set(Calendar.MINUTE, 18 );
+		assertTrue( Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000 );
+	}
+	
+	@Test
+	public void testMessage6() throws MessagingException {
+		MessageReader mr = new MessageReader( validMessage006 );
+		assertTrue( "Message 6 is not valid", mr.isValid );		
+		assertEquals( 6.5, mr.ounces, .0001 );
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime( new Date() );
+		c.set(Calendar.HOUR_OF_DAY, 13 );
+		c.set(Calendar.MINUTE, 2 );
+		assertTrue( Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000 );
+	}
+	
+	@Test
+	public void testMessage7() throws MessagingException {
+		MessageReader mr = new MessageReader( validMessage007 );
+		assertTrue( "Message 7 is not valid", mr.isValid );		
+		assertEquals( 6.5, mr.ounces, .0001 );
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime( new Date() );
+		c.set(Calendar.HOUR_OF_DAY, 16 );
+		c.set(Calendar.MINUTE, 3 );
 		assertTrue( Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000 );
 	}
 }
