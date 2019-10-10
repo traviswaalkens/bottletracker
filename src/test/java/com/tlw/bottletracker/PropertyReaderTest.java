@@ -22,7 +22,7 @@ public class PropertyReaderTest {
 		PropertyReader pr = new PropertyReader();
 		Properties p = pr.getConfigProperties();
 		
-		assertEquals(0, p.size() );		
+		assertEquals(3, p.size() );		
 	}
 
 }
