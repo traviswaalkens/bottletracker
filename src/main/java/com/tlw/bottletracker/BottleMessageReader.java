@@ -12,7 +12,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
-public class BottleMessageReader implements MessageReader {
+public class BottleMessageReader extends KidsReportMessageReader {
 	public Message msg;
 	public String contents;
 	public boolean isValid = false;
@@ -21,7 +21,6 @@ public class BottleMessageReader implements MessageReader {
 	public Date time;
 
 	private static String subjectPattern = "Bottle Event Alert";
-	private static String fromPattern = "KidReports Notifier <noreply@kidreports.com>";
 
 	/*
 	 * MessageReader( Message m ){ msg = m;
