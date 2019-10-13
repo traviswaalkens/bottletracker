@@ -27,7 +27,9 @@ public class EmailRepositoryServiceTest {
 		service.setProvider(p.getProperty("provider"));
 		service.setPort(p.getProperty("port"));
 
-		assertTrue(service.getSession().isConnected());
+		service.connect();
+
+		assertTrue(service.getStore().isConnected());
 		assertTrue(service.getInbox().isOpen());
 		assertTrue(service.getCompletedArchive().isOpen());
 		assertTrue(service.getNoiseArchive().isOpen());
