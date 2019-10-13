@@ -16,24 +16,8 @@ import com.tlw.bottletracker.dto.BottleData;
 import com.tlw.bottletracker.dto.MessageData;
 
 public class BottleMessageReader extends KidsReportMessageReader {
-	private Message msg;
-	private String contents;
-	private boolean isValid = false;
-
-	private float ounces;
-	private Date time;
 
 	private static String subjectPattern = "Bottle Event Alert";
-
-	/*
-	 * MessageReader( Message m ){ msg = m;
-	 *
-	 * try { contents = getTextFromMessage( msg ); parseContents();
-	 *
-	 * } catch (MessagingException e) { // TODO Auto-generated catch block
-	 * e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch
-	 * block e.printStackTrace(); } }
-	 */
 
 	public boolean matches(String subject, Address[] from) {
 		if (!subjectPattern.equals(subject)) {
@@ -51,22 +35,21 @@ public class BottleMessageReader extends KidsReportMessageReader {
 	}
 
 	public MessageData read(Message m) {
-		msg = m;
+
 		BottleData bd = new BottleData();
 		bd.setValid(false);
 		bd.setType("Bottle");
 
 		try {
 
-			contents = getTextFromMessage(msg);
-			parseContents();
+			bd.setContents(getTextFromMessage(m));
+			parseContents(m, bd);
 
 			// TODO parseContents should not set local variables, it should modify bd.
-			bd.setOunces(ounces);
-			bd.setContents(contents);
-			bd.setNotes("");
-			bd.setTime(time);
-			bd.setValid(isValid);
+			// bd.setOunces(ounces);
+			// bd.setNotes("");
+			// bd.setTime(time);
+			// bd.setValid(isValid);
 
 		} catch (MessagingException e) {
 			bd.setNotes(e.getMessage());
@@ -130,24 +113,25 @@ public class BottleMessageReader extends KidsReportMessageReader {
 		return result;
 	}
 
-	public void parseContents() throws MessagingException {
-		ounces = 0;
-		time = new Date();
+	public void parseContents(Message msg, BottleData bd) throws MessagingException {
+		bd.setOunces(0);
+		bd.setTime(new Date());
 
+		//
 		if (msg.getReceivedDate() != null) {
-			time = msg.getReceivedDate();
+			bd.setTime(msg.getReceivedDate());
 		}
 
 		Calendar c = Calendar.getInstance();
-		c.setTime(time);
+		c.setTime(bd.getTime());
 
 		String regex = "(\\d+):(\\d+) ([AP]M)</i>\\s+Bottle\\s+-\\s+(\\d)\\s*(?:\\s(\\d)/(\\d)|(\\.\\d))?(?:\\s*oz)?,";
 
 		Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(contents);
+		Matcher m = p.matcher(bd.getContents());
 
 		if (m.find()) {
-			ounces = 0;
+			bd.setOunces(0);
 			int hour;
 
 			hour = Integer.parseInt(m.group(1));
@@ -158,26 +142,28 @@ public class BottleMessageReader extends KidsReportMessageReader {
 
 			c.set(Calendar.HOUR_OF_DAY, hour);
 			c.set(Calendar.MINUTE, Integer.parseInt(m.group(2)));
-			time = c.getTime();
+			bd.setTime(c.getTime());
 
-			ounces += Integer.parseInt(m.group(4));
+			bd.setOunces(bd.getOunces() + Integer.parseInt(m.group(4)));
 			if (m.group(7) != null) {
 				// ".5";
 				float p1;
 				p1 = Float.parseFloat(m.group(7));
-				ounces += p1;
+				bd.setOunces(bd.getOunces() + p1);
 			} else if (m.group(5) != null) {
 				float p1, p2, p3;
 				p1 = Float.parseFloat(m.group(5));
 				p2 = Float.parseFloat(m.group(6));
 				p3 = p1 / p2;
-				ounces += p3;
+				bd.setOunces(bd.getOunces() + p3);
 			}
 
-			isValid = true;
+			bd.setValid(true);
 		} else {
-			ounces = 0;
-			time = null;
+			bd.setNotes("could extract data from message");
+			bd.setValid(false);
+			bd.setOunces(0);
+			bd.setTime(null);
 		}
 	}
 }
