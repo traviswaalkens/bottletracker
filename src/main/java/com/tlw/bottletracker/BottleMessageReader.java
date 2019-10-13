@@ -12,7 +12,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
-public class BottleMessageReader {
+public class BottleMessageReader implements MessageReader {
 	public Message msg;
 	public String contents;
 	public boolean isValid = false;

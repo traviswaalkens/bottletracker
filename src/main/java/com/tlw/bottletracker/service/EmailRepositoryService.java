@@ -20,6 +20,7 @@ public class EmailRepositoryService {
 
 	private Boolean connected = false;
 
+	private Session session;
 	private Store store;
 
 	private Folder inbox;
@@ -66,7 +67,7 @@ public class EmailRepositoryService {
 		this.port = port;
 	}
 
-	public Store getSession() {
+	public Store getStore() {
 		return this.store;
 	}
 
@@ -82,7 +83,7 @@ public class EmailRepositoryService {
 
 	public void connect() throws NoSuchProviderException, MessagingException {
 		Properties p = new Properties();
-		Session session = Session.getDefaultInstance(p, null);
+		session = Session.getDefaultInstance(p, null);
 		store = session.getStore(provider);
 		store.connect(host, Integer.parseInt(port), username, password);
 
