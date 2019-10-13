@@ -4,8 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
 
-import javax.mail.Message;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -29,9 +27,7 @@ public class EmailRepositoryServiceTest {
 		service.setProvider(p.getProperty("provider"));
 		service.setPort(p.getProperty("port"));
 
-		Message[] m;
-		m = service.getNewMessages();
-		System.out.println("Found " + m.length + " messages.");
+		assertTrue(service.getSession().isConnected());
 		assertTrue(service.getInbox().isOpen());
 		assertTrue(service.getCompletedArchive().isOpen());
 		assertTrue(service.getNoiseArchive().isOpen());
