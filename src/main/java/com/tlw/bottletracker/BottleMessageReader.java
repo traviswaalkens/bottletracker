@@ -7,10 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.Address;
-import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMultipart;
 
 import com.tlw.bottletracker.dto.BottleData;
 import com.tlw.bottletracker.dto.MessageData;
@@ -24,14 +22,7 @@ public class BottleMessageReader extends KidsReportMessageReader {
 			return false;
 		}
 
-		for (int x = 0; x < from.length; x++) {
-
-			if (fromPattern.equals(from[x].toString())) {
-				return true;
-			}
-		}
-
-		return false;
+		return isValidFrom(from);
 	}
 
 	public MessageData read(Message m) {
@@ -45,12 +36,6 @@ public class BottleMessageReader extends KidsReportMessageReader {
 			bd.setContents(getTextFromMessage(m));
 			parseContents(m, bd);
 
-			// TODO parseContents should not set local variables, it should modify bd.
-			// bd.setOunces(ounces);
-			// bd.setNotes("");
-			// bd.setTime(time);
-			// bd.setValid(isValid);
-
 		} catch (MessagingException e) {
 			bd.setNotes(e.getMessage());
 		} catch (IOException e) {
@@ -59,58 +44,6 @@ public class BottleMessageReader extends KidsReportMessageReader {
 
 		return bd;
 
-	}
-
-	/*
-	 * https://stackoverflow.com/questions/11240368/how-to-read-text-inside-body-of-
-	 * mail-using-javax-mail
-	 */
-	public String getTextFromMessage(Message message) throws MessagingException, IOException {
-		String result = "";
-
-		// this shouldn't happen, kids report are html emails with multipart
-		if (message.isMimeType("text/plain")) {
-			result = message.getContent().toString();
-		} else if (message.isMimeType("multipart/*")) {
-			MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-			result = getTextFromMimeMultipart(mimeMultipart);
-		}
-
-		return result;
-	}
-
-	/*
-	 *
-	 * With modifications from
-	 * :https://stackoverflow.com/questions/11240368/how-to-read-text-inside-body-of
-	 * -mail-using-javax-mail
-	 */
-	public String getTextFromMimeMultipart(MimeMultipart mimeMultipart) throws MessagingException, IOException {
-
-		String result = "";
-		int count = mimeMultipart.getCount();
-
-		for (int i = 0; i < count; i++) {
-			BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-
-			if (bodyPart.isMimeType("text/html")) {
-				result = bodyPart.getContent().toString();
-				break;
-			}
-
-			// Kids report doesn't provide text/plain version and we aren't prepared to
-			// parse it.
-			/*
-			 * if (bodyPart.isMimeType("text/plain")) { continue; } else if
-			 * (bodyPart.isMimeType("text/html")) { String html = (String)
-			 * bodyPart.getContent(); result = html; } // this hasn't happened yet, nor do I
-			 * think it's correct to append the data so commenting out.
-			 *
-			 * else if (bodyPart.getContent() instanceof MimeMultipart){ result = result +
-			 * getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent()); }
-			 */
-		}
-		return result;
 	}
 
 	public void parseContents(Message msg, BottleData bd) throws MessagingException {
