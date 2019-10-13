@@ -20,7 +20,7 @@ import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageReaderTest {
+public class BottleMessageReaderReadTest {
 
 	private static Message validMessage001;
 	private static Message validMessage002;

@@ -10,7 +10,7 @@ import javax.mail.internet.InternetAddress;
 
 import org.junit.Test;
 
-public class MessageFilterTest {
+public class BottleMessageReaderFilterTest {
 	public String subject001() {
 		return "Bottle Event Alert";
 	}
