@@ -20,6 +20,8 @@ import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.tlw.bottletracker.dto.BottleData;
+
 public class BottleMessageReaderReadTest {
 
 	private static Message validMessage001;
@@ -103,124 +105,124 @@ public class BottleMessageReaderReadTest {
 	@Test
 	public void testGetTextFromMessage() {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage001);
-		assertEquals(6273, mr.contents.length());
+		BottleData bd = (BottleData) mr.read(validMessage001);
+		assertEquals(6273, bd.getContents().length());
 
 		Pattern p = Pattern.compile("\\(Sample Sample\\)");
-		Matcher m = p.matcher(mr.contents);
+		Matcher m = p.matcher(bd.getContents());
 		boolean matches = m.find();
 		assertTrue(matches);
 
 		BottleMessageReader mr2 = new BottleMessageReader();
-		mr2.readMessage(validMessage002);
-		assertNotNull(mr2.contents);
-		assertTrue(p.matcher(mr.contents).find());
+		BottleData bd2 = (BottleData) mr2.read(validMessage002);
+		assertNotNull(bd.getContents());
+		assertTrue(p.matcher(bd.getContents()).find());
 	}
 
 	@Test
 	public void testParseValidMessage() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage001);
-		assertTrue(mr.isValid);
+		BottleData bd = (BottleData) mr.read(validMessage001);
+		assertTrue(bd.isValid());
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 12);
 		c.set(Calendar.MINUTE, 30);
 
-		assertEquals(6.5, mr.ounces, .0001);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertEquals(6.5, bd.getOunces(), .0001);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testParseInvalidMessage() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(invalidMessage001);
-		assertFalse(mr.isValid);
-		assertEquals(0, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(invalidMessage001);
+		assertFalse(bd.isValid());
+		assertEquals(0, bd.getOunces(), .0001);
 	}
 
 	@Test
 	public void testMessageWithWholeOunces() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage002);
-		assertTrue("Message 2 is not valid", mr.isValid);
-		assertEquals(6, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage002);
+		assertTrue("Message 2 is not valid", bd.isValid());
+		assertEquals(6, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 15);
 		c.set(Calendar.MINUTE, 45);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testMessageWithAmDate() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage003);
-		assertTrue("Message 3 is not valid", mr.isValid);
-		assertEquals(6.5, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage003);
+		assertTrue("Message 3 is not valid", bd.isValid());
+		assertEquals(6.5, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 8);
 		c.set(Calendar.MINUTE, 44);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testMessage4() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage004);
-		assertTrue("Message 4 is not valid", mr.isValid);
-		assertEquals(1, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage004);
+		assertTrue("Message 4 is not valid", bd.isValid());
+		assertEquals(1, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 14);
 		c.set(Calendar.MINUTE, 15);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testMessage5() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage005);
-		assertTrue("Message 5 is not valid", mr.isValid);
-		assertEquals(6, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage005);
+		assertTrue("Message 5 is not valid", bd.isValid());
+		assertEquals(6, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 13);
 		c.set(Calendar.MINUTE, 18);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testMessage6() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage006);
-		assertTrue("Message 6 is not valid", mr.isValid);
-		assertEquals(6.5, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage006);
+		assertTrue("Message 6 is not valid", bd.isValid());
+		assertEquals(6.5, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 13);
 		c.set(Calendar.MINUTE, 2);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 
 	@Test
 	public void testMessage7() throws MessagingException {
 		BottleMessageReader mr = new BottleMessageReader();
-		mr.readMessage(validMessage007);
-		assertTrue("Message 7 is not valid", mr.isValid);
-		assertEquals(6.5, mr.ounces, .0001);
+		BottleData bd = (BottleData) mr.read(validMessage007);
+		assertTrue("Message 7 is not valid", bd.isValid());
+		assertEquals(6.5, bd.getOunces(), .0001);
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		c.set(Calendar.HOUR_OF_DAY, 16);
 		c.set(Calendar.MINUTE, 3);
-		assertTrue(Math.abs(c.getTime().getTime() - mr.time.getTime()) < 1000);
+		assertTrue(Math.abs(c.getTime().getTime() - bd.getTime().getTime()) < 1000);
 	}
 }

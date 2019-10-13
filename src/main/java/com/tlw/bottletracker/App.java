@@ -10,7 +10,9 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 
+import com.tlw.bottletracker.dto.BottleData;
 import com.tlw.bottletracker.dto.BottleEvent;
+import com.tlw.bottletracker.dto.MessageData;
 import com.tlw.bottletracker.service.BabyStatsHttpService;
 import com.tlw.bottletracker.service.EmailRepositoryService;
 
@@ -48,7 +50,8 @@ public class App {
 			System.out.println("found " + messages.length + " messages ");
 
 			BottleMessageReader mr = new BottleMessageReader();
-			int max = Math.min(100, messages.length);
+
+			int max = Math.min(10, messages.length);
 			for (int i = 0; i < max; i++) {
 
 				Message message = messages[i];
@@ -62,15 +65,17 @@ public class App {
 
 					DateFormat df = new SimpleDateFormat("HH:mm");
 
-					mr.readMessage(message);
+					MessageData md = mr.read(message);
 
-					if (mr.isValid) {
-						System.out.println(String.format("%.2f Ounces @ %s", mr.ounces, df.format(mr.time)));
+					if (md.isValid() && md.getType() == "Bottle") {
+
+						BottleData bd = (BottleData) md;
+						System.out.println(String.format("%.2f Ounces @ %s", bd.getOunces(), df.format(md.getTime())));
 
 						BottleEvent be = new BottleEvent();
-						be.setBottleOunces(String.valueOf(mr.ounces));
+						be.setBottleOunces(String.valueOf(bd.getOunces()));
 						be.setEvent("AddFeeding");
-						be.setEventTime(df.format(mr.time));
+						be.setEventTime(df.format(md.getTime()));
 						be.setId(props.getProperty("babystats.id"));
 						be.setAccessToken(props.getProperty("babystats.token"));
 						be.setUom("oz");
@@ -81,7 +86,8 @@ public class App {
 						emailService.archiveCompletedMessage(message);
 					} else {
 						System.out.println("Message doesn't match.");
-						System.out.println(mr.contents);
+						System.out.println(md.getNotes());
+						System.out.println(md.getContents());
 					}
 				} else {
 					emailService.archiveNoiseMessage(message);

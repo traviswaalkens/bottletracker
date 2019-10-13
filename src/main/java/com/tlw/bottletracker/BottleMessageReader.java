@@ -12,13 +12,16 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
-public class BottleMessageReader extends KidsReportMessageReader {
-	public Message msg;
-	public String contents;
-	public boolean isValid = false;
+import com.tlw.bottletracker.dto.BottleData;
+import com.tlw.bottletracker.dto.MessageData;
 
-	public float ounces;
-	public Date time;
+public class BottleMessageReader extends KidsReportMessageReader {
+	private Message msg;
+	private String contents;
+	private boolean isValid = false;
+
+	private float ounces;
+	private Date time;
 
 	private static String subjectPattern = "Bottle Event Alert";
 
@@ -47,20 +50,32 @@ public class BottleMessageReader extends KidsReportMessageReader {
 		return false;
 	}
 
-	public void readMessage(Message m) {
+	public MessageData read(Message m) {
 		msg = m;
+		BottleData bd = new BottleData();
+		bd.setValid(false);
+		bd.setType("Bottle");
 
 		try {
+
 			contents = getTextFromMessage(msg);
 			parseContents();
 
+			// TODO parseContents should not set local variables, it should modify bd.
+			bd.setOunces(ounces);
+			bd.setContents(contents);
+			bd.setNotes("");
+			bd.setTime(time);
+			bd.setValid(isValid);
+
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			bd.setNotes(e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			bd.setNotes(e.getMessage());
 		}
+
+		return bd;
+
 	}
 
 	/*
