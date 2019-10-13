@@ -1,8 +1,6 @@
 package com.tlw.bottletracker;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import javax.mail.Address;
@@ -10,14 +8,15 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 
-import com.tlw.bottletracker.dto.BottleData;
+import com.tlw.bottletracker.dto.BabyStatsEvent;
+import com.tlw.bottletracker.dto.BabyStatsEventFactory;
 import com.tlw.bottletracker.dto.BottleEvent;
 import com.tlw.bottletracker.dto.MessageData;
 import com.tlw.bottletracker.service.BabyStatsHttpService;
 import com.tlw.bottletracker.service.EmailRepositoryService;
 
 public class App {
-	public static void main(String[] args) throws IOException, MessagingException {
+	public static void main(String[] args) throws Exception {
 		Properties credentialsProperties, props = new Properties();
 
 		PropertyReader pr = new PropertyReader();
@@ -30,8 +29,11 @@ public class App {
 			return;
 		}
 
+		BabyStatsEventFactory babyStatsFactory = new BabyStatsEventFactory(props);
+
 		BabyStatsHttpService babyStatsService = new BabyStatsHttpService();
 		babyStatsService.setUrl(props.getProperty("babystats.url"));
+
 		EmailRepositoryService emailService = new EmailRepositoryService();
 
 		emailService.setHost(credentialsProperties.getProperty("host"));
@@ -63,22 +65,22 @@ public class App {
 				// TODO: Alysha wants it to handle diaper events too.
 				if (mr.matches(subject, from)) {
 
-					DateFormat df = new SimpleDateFormat("HH:mm");
-
 					MessageData md = mr.read(message);
+					if (md.isValid()) {
 
-					if (md.isValid() && md.getType() == "Bottle") {
+						BabyStatsEvent be = babyStatsFactory.factory(md);
 
-						BottleData bd = (BottleData) md;
-						System.out.println(String.format("%.2f Ounces @ %s", bd.getOunces(), df.format(md.getTime())));
+						String consoleMessage;
 
-						BottleEvent be = new BottleEvent();
-						be.setBottleOunces(String.valueOf(bd.getOunces()));
-						be.setEvent("AddFeeding");
-						be.setEventTime(df.format(md.getTime()));
-						be.setId(props.getProperty("babystats.id"));
-						be.setAccessToken(props.getProperty("babystats.token"));
-						be.setUom("oz");
+						if (be.getEvent() == "AddFeeding") {
+							BottleEvent _be = (BottleEvent) be;
+							consoleMessage = String.format("Feeding Event - %.2f Ounces @ %s",
+									Float.parseFloat(_be.getBottleOunces()), be.getEventTime());
+						} else {
+							consoleMessage = be.getEvent();
+						}
+
+						System.out.println(consoleMessage);
 
 						String result = babyStatsService.addEvent(be);
 						System.out.println(result);

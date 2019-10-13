@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tlw.bottletracker.PropertyReader;
@@ -16,6 +17,7 @@ public class EmailRepositoryServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void test() throws Exception {
 		PropertyReader r = new PropertyReader();
 		Properties p = r.getCredentialsProperties();
