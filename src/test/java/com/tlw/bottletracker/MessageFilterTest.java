@@ -33,7 +33,7 @@ public class MessageFilterTest {
 
 	@Test
 	public void testMatches() throws UnsupportedEncodingException {
-		MessageReader filter = new MessageReader();
+		BottleMessageReader filter = new BottleMessageReader();
 
 		String subject = subject001();
 		Address address = address001();
@@ -44,7 +44,7 @@ public class MessageFilterTest {
 
 	@Test
 	public void testMatchesWithFailingSubject() throws UnsupportedEncodingException {
-		MessageReader filter = new MessageReader();
+		BottleMessageReader filter = new BottleMessageReader();
 		String subject = subject002();
 		Address address = address001();
 		assertFalse(filter.matches(subject, new Address[] { address }));
@@ -52,7 +52,7 @@ public class MessageFilterTest {
 
 	@Test
 	public void testMatchesWithFailingAddress() throws UnsupportedEncodingException {
-		MessageReader filter = new MessageReader();
+		BottleMessageReader filter = new BottleMessageReader();
 
 		String subject = subject001();
 		// verify failure isn't because of the subject
@@ -65,7 +65,7 @@ public class MessageFilterTest {
 
 	@Test
 	public void testMatchesWithSuccessfulAddressInPosition2() throws UnsupportedEncodingException {
-		MessageReader filter = new MessageReader();
+		BottleMessageReader filter = new BottleMessageReader();
 
 		String subject = subject001();
 		Address[] addresses = new Address[2];

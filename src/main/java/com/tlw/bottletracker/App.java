@@ -47,7 +47,7 @@ public class App {
 			Message[] messages = emailService.getNewMessages();
 			System.out.println("found " + messages.length + " messages ");
 
-			MessageReader mr = new MessageReader();
+			BottleMessageReader mr = new BottleMessageReader();
 			int max = Math.min(100, messages.length);
 			for (int i = 0; i < max; i++) {
 
