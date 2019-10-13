@@ -6,19 +6,16 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import javax.mail.Address;
-import javax.mail.Flags;
-import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
-import javax.mail.Session;
-import javax.mail.Store;
 
 import com.tlw.bottletracker.dto.BottleEvent;
 import com.tlw.bottletracker.service.BabyStatsHttpService;
+import com.tlw.bottletracker.service.EmailRepositoryService;
 
 public class App {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, MessagingException {
 		Properties credentialsProperties, props = new Properties();
 
 		PropertyReader pr = new PropertyReader();
@@ -33,30 +30,24 @@ public class App {
 
 		BabyStatsHttpService babyStatsService = new BabyStatsHttpService();
 		babyStatsService.setUrl(props.getProperty("babystats.url"));
+		EmailRepositoryService emailService = new EmailRepositoryService();
 
-		String host = credentialsProperties.getProperty("host");
-		String username = credentialsProperties.getProperty("username");
-		String password = credentialsProperties.getProperty("password");
-		String provider = credentialsProperties.getProperty("provider");
-		String port = credentialsProperties.getProperty("port");
+		emailService.setHost(credentialsProperties.getProperty("host"));
+		emailService.setUsername(credentialsProperties.getProperty("username"));
+		emailService.setPassword(credentialsProperties.getProperty("password"));
+		emailService.setProvider(credentialsProperties.getProperty("provider"));
+		emailService.setPort(credentialsProperties.getProperty("port"));
 
 		try {
-			Session session = Session.getDefaultInstance(props, null);
-			Store store = session.getStore(provider);
-			store.connect(host, Integer.parseInt(port), username, password);
 
-			Folder inbox = store.getFolder("INBOX");
-			inbox.open(Folder.READ_WRITE);
+			emailService.connect();
 
 			// TODO (Eclipse) add code template
 			// TODO set up receptacle folder for completed messages.
 			// Folder receptacle = store.getFolder( "recorded_events");
 			// receptacle.open(Folder.READ_WRITE);
 
-			Folder archive = store.getFolder("Archive");
-			archive.open(Folder.READ_ONLY);
-
-			Message[] messages = inbox.getMessages();
+			Message[] messages = emailService.getNewMessages();
 			System.out.println("found " + messages.length + " messages ");
 
 			MessageFilter messageFilter = new MessageFilter();
@@ -94,35 +85,27 @@ public class App {
 						String result = babyStatsService.addEvent(be);
 						System.out.println(result);
 
+						emailService.archiveCompletedMessage(message);
 					} else {
 						System.out.println("Message doesn't match.");
 						System.out.println(mr.contents);
 					}
 				} else {
-					Message[] tempMessages = new Message[] { message };
-
-					try {
-						inbox.copyMessages(tempMessages, archive);
-						// TODO only delete if copy succeeds. How to tell if copy worked?
-						inbox.setFlags(tempMessages, new Flags(Flags.Flag.DELETED), true);
-					} catch (Exception ex) {
-						System.out.println("Failed copy or delete message:" + ex.getMessage());
-					}
+					emailService.archiveNoiseMessage(message);
 				}
 			}
 
 			System.out.println("Done.");
 
-			inbox.close(false);
-			// receptacle.close(false);
-			archive.close(false);
-
-			store.close();
 		} catch (NoSuchProviderException nspe) {
 			System.err.println("invalid provider name");
 		} catch (MessagingException me) {
 			System.err.println("messaging exception");
 			me.printStackTrace();
+		} finally {
+			if (emailService != null) {
+				emailService.disconnect();
+			}
 		}
 	}
 }
