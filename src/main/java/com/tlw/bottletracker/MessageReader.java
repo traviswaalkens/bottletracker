@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -19,15 +20,33 @@ public class MessageReader {
 	public float ounces;
 	public Date time;
 
+	private static String subjectPattern = "Bottle Event Alert";
+	private static String fromPattern = "KidReports Notifier <noreply@kidreports.com>";
+
 	/*
 	 * MessageReader( Message m ){ msg = m;
-	 * 
+	 *
 	 * try { contents = getTextFromMessage( msg ); parseContents();
-	 * 
+	 *
 	 * } catch (MessagingException e) { // TODO Auto-generated catch block
 	 * e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch
 	 * block e.printStackTrace(); } }
 	 */
+
+	public boolean matches(String subject, Address[] from) {
+		if (!subjectPattern.equals(subject)) {
+			return false;
+		}
+
+		for (int x = 0; x < from.length; x++) {
+
+			if (fromPattern.equals(from[x].toString())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public void readMessage(Message m) {
 		msg = m;
@@ -89,7 +108,7 @@ public class MessageReader {
 			 * (bodyPart.isMimeType("text/html")) { String html = (String)
 			 * bodyPart.getContent(); result = html; } // this hasn't happened yet, nor do I
 			 * think it's correct to append the data so commenting out.
-			 * 
+			 *
 			 * else if (bodyPart.getContent() instanceof MimeMultipart){ result = result +
 			 * getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent()); }
 			 */

@@ -47,7 +47,7 @@ public class App {
 			Message[] messages = emailService.getNewMessages();
 			System.out.println("found " + messages.length + " messages ");
 
-			MessageFilter messageFilter = new MessageFilter();
+			MessageReader mr = new MessageReader();
 			int max = Math.min(100, messages.length);
 			for (int i = 0; i < max; i++) {
 
@@ -58,15 +58,10 @@ public class App {
 				System.out.println("Checking- " + subject + " by " + from[0]);
 
 				// TODO: Alysha wants it to handle diaper events too.
-				if (messageFilter.matches(subject, from)) {
-					// TODO (Eclipse) auto trip trailing spaces?
-					/*
-					 * TODO: parse message for ounces and time, execute save to baby stats
-					 * transaction. Move completed item to receptacle
-					 */
+				if (mr.matches(subject, from)) {
+
 					DateFormat df = new SimpleDateFormat("HH:mm");
 
-					MessageReader mr = new MessageReader();
 					mr.readMessage(message);
 
 					if (mr.isValid) {
