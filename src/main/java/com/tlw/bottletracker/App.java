@@ -43,9 +43,6 @@ public class App {
 			emailService.connect();
 
 			// TODO (Eclipse) add code template
-			// TODO set up receptacle folder for completed messages.
-			// Folder receptacle = store.getFolder( "recorded_events");
-			// receptacle.open(Folder.READ_WRITE);
 
 			Message[] messages = emailService.getNewMessages();
 			System.out.println("found " + messages.length + " messages ");
@@ -69,7 +66,8 @@ public class App {
 					 */
 					DateFormat df = new SimpleDateFormat("HH:mm");
 
-					MessageReader mr = new MessageReader(message);
+					MessageReader mr = new MessageReader();
+					mr.readMessage(message);
 
 					if (mr.isValid) {
 						System.out.println(String.format("%.2f Ounces @ %s", mr.ounces, df.format(mr.time)));
