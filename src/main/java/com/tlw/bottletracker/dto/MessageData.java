@@ -3,11 +3,11 @@ package com.tlw.bottletracker.dto;
 import java.util.Date;
 
 public class MessageData {
-	String type;
-	String notes;
-	Date time;
-	boolean isValid;
-	String contents;
+	private String type;
+	private String notes;
+	private Date time;
+	private boolean isValid;
+	private String contents;
 
 	public String getType() {
 		return type;

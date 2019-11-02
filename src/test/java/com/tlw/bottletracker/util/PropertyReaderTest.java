@@ -1,4 +1,4 @@
-package com.tlw.bottletracker;
+package com.tlw.bottletracker.util;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.Test;
+
+import com.tlw.bottletracker.util.PropertyReader;
 
 public class PropertyReaderTest {
 

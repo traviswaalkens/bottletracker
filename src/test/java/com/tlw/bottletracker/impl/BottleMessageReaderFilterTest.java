@@ -1,4 +1,4 @@
-package com.tlw.bottletracker;
+package com.tlw.bottletracker.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +9,8 @@ import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 
 import org.junit.Test;
+
+import com.tlw.bottletracker.impl.BottleMessageReader;
 
 public class BottleMessageReaderFilterTest {
 	public String subject001() {

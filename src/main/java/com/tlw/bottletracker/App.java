@@ -1,6 +1,9 @@
 package com.tlw.bottletracker;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Address;
@@ -8,15 +11,25 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tlw.bottletracker.dto.BabyStatsEvent;
-import com.tlw.bottletracker.dto.BabyStatsEventFactory;
-import com.tlw.bottletracker.dto.BottleEvent;
 import com.tlw.bottletracker.dto.MessageData;
+import com.tlw.bottletracker.impl.BottleMessageReader;
 import com.tlw.bottletracker.service.BabyStatsHttpService;
 import com.tlw.bottletracker.service.EmailRepositoryService;
+import com.tlw.bottletracker.util.BabyStatsEventFactory;
+import com.tlw.bottletracker.util.PropertyReader;
 
 public class App {
+
+	public static final Logger LOG = LoggerFactory.getLogger(App.class);
+
 	public static void main(String[] args) throws Exception {
+		// TODO Main should provide bootstrap and shutdown only extract the rest into
+		// other method calls.
+
 		Properties credentialsProperties, props = new Properties();
 
 		PropertyReader pr = new PropertyReader();
@@ -49,9 +62,7 @@ public class App {
 			// TODO (Eclipse) add code template
 
 			Message[] messages = emailService.getNewMessages();
-			System.out.println("found " + messages.length + " messages ");
-
-			BottleMessageReader mr = new BottleMessageReader();
+			LOG.info("found {} messages", messages.length);
 
 			int max = Math.min(10, messages.length);
 			for (int i = 0; i < max; i++) {
@@ -60,53 +71,78 @@ public class App {
 				Address[] from = message.getFrom();
 				String subject = message.getSubject();
 
-				System.out.println("Checking- " + subject + " by " + from[0]);
+				LOG.info("Checking- {} by {}", subject, from[0]);
 
-				// TODO: Alysha wants it to handle diaper events too.
-				if (mr.matches(subject, from)) {
+				for (MessageReader mr : getMessageReaders()) {
 
-					MessageData md = mr.read(message);
-					if (md.isValid()) {
+					// TODO extract this into a method call
+					if (mr.matches(subject, from)) {
 
-						BabyStatsEvent be = babyStatsFactory.factory(md);
+						MessageData md = mr.read(message);
+						if (md.isValid()) {
 
-						String consoleMessage;
+							// TODO this now returns a collection and each event needs to be sent to
+							// babystats
+							// TODO this is no longer a factory so much as its a conversion coordinator.
+							Collection<BabyStatsEvent> babyStatEvents = babyStatsFactory.factory(md);
 
-						if (be.getEvent() == "AddFeeding") {
-							BottleEvent _be = (BottleEvent) be;
-							consoleMessage = String.format("Feeding Event - %.2f Ounces @ %s",
-									Float.parseFloat(_be.getBottleOunces()), be.getEventTime());
+							for (BabyStatsEvent be : babyStatEvents) {
+								// String consoleMessage;
+
+								// TODO this logging should be somwhere else.
+
+								// if ("AddFeeding".equals(be.getEvent())) {
+								// BottleEvent _be = (BottleEvent) be;
+								// consoleMessage = String.format("Feeding Event - %.2f Ounces @ %s",
+								// Float.parseFloat(_be.getBottleOunces()), be.getEventTime());
+								// } else {
+								// consoleMessage = be.getEvent();
+								// }
+
+								// LOG.info(consoleMessage);
+
+								// TODO more logging
+								// TODO this should be its own function
+
+								String result = babyStatsService.addEvent(be);
+								LOG.info(result);
+							}
+
+							emailService.archiveCompletedMessage(message);
 						} else {
-							consoleMessage = be.getEvent();
+							LOG.warn("Message doesn't match.");
+							LOG.debug(md.getNotes());
+							LOG.debug(md.getContents());
 						}
 
-						System.out.println(consoleMessage);
-
-						String result = babyStatsService.addEvent(be);
-						System.out.println(result);
-
-						emailService.archiveCompletedMessage(message);
+						break;
 					} else {
-						System.out.println("Message doesn't match.");
-						System.out.println(md.getNotes());
-						System.out.println(md.getContents());
+						emailService.archiveNoiseMessage(message);
 					}
-				} else {
-					emailService.archiveNoiseMessage(message);
 				}
 			}
 
-			System.out.println("Done.");
+			LOG.info("Done.");
 
 		} catch (NoSuchProviderException nspe) {
-			System.err.println("invalid provider name");
+			LOG.error("invalid provider name");
 		} catch (MessagingException me) {
-			System.err.println("messaging exception");
-			me.printStackTrace();
+			LOG.error("messaging exception", me);
 		} finally {
 			if (emailService != null) {
 				emailService.disconnect();
 			}
 		}
+
+		LOG.info("Done");
+	}
+
+	private static List<MessageReader> getMessageReaders() {
+		// TODO why is this not allowing ArrayList<>
+		List<MessageReader> readers = new ArrayList<MessageReader>();
+		// readers.add(new DiaperMessageReader());
+		readers.add(new BottleMessageReader());
+
+		return readers;
 	}
 }

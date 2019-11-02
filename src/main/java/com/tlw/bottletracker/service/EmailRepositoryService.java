@@ -10,6 +10,10 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+// TODO remove the get/set for the connection properties.  Should be passed in as properties or some other config.
 public class EmailRepositoryService {
 
 	private String host;
@@ -20,12 +24,14 @@ public class EmailRepositoryService {
 
 	private Boolean connected = false;
 
-	private Session session;
+	// private Session session; // TODO this doesn't need to be a member.
 	private Store store;
 
 	private Folder inbox;
 	private Folder noiseArchive;
 	private Folder completedArchive;
+
+	public static final Logger LOG = LoggerFactory.getLogger(EmailRepositoryService.class);
 
 	public String getHost() {
 		return host;
@@ -82,19 +88,24 @@ public class EmailRepositoryService {
 	}
 
 	public void connect() throws NoSuchProviderException, MessagingException {
+
+		LOG.info("Connecting to ", username, "@", host, "(", port, ")");
 		Properties p = new Properties();
-		session = Session.getDefaultInstance(p, null);
+		Session session = Session.getDefaultInstance(p, null);
 		store = session.getStore(provider);
 		store.connect(host, Integer.parseInt(port), username, password);
 
+		LOG.debug("Opening folder INBOX");
 		inbox = store.getFolder("INBOX");
 		inbox.open(Folder.READ_WRITE);
 
 		// TODO This name should be configurable
+		LOG.debug("Opening folder Archive");
 		noiseArchive = store.getFolder("Archive");
 		noiseArchive.open(Folder.READ_ONLY);
 
 		// TODO this name should be configurable
+		LOG.debug("Opening folder recorded_events.");
 		completedArchive = store.getFolder("recorded_events");
 		completedArchive.open(Folder.READ_ONLY);
 
@@ -103,11 +114,12 @@ public class EmailRepositoryService {
 
 	public void disconnect() throws MessagingException {
 
+		LOG.info("Disconecting ", host);
 		inbox.close(false);
-
 		noiseArchive.close(false);
 		completedArchive.close(false);
 		store.close();
+		connected = false; // thanks dan.
 	}
 
 	public void archiveNoiseMessage(Message m) throws MessagingException {
@@ -115,6 +127,7 @@ public class EmailRepositoryService {
 			connect();
 		}
 
+		LOG.info("Archiving message to ", noiseArchive.getName());
 		Message[] tempMessages = new Message[] { m };
 		inbox.copyMessages(tempMessages, noiseArchive);
 		// TODO only delete if copy succeeds. How to tell if copy worked?
@@ -126,6 +139,7 @@ public class EmailRepositoryService {
 			connect();
 		}
 
+		LOG.info("Archiving message to ", completedArchive.getName());
 		Message[] tempMessages = new Message[] { m };
 		inbox.copyMessages(tempMessages, completedArchive);
 		// TODO only delete if copy succeeds. How to tell if copy worked?

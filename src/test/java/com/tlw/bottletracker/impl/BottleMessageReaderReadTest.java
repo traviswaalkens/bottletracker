@@ -1,4 +1,4 @@
-package com.tlw.bottletracker;
+package com.tlw.bottletracker.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -115,8 +115,8 @@ public class BottleMessageReaderReadTest {
 
 		BottleMessageReader mr2 = new BottleMessageReader();
 		BottleData bd2 = (BottleData) mr2.read(validMessage002);
-		assertNotNull(bd.getContents());
-		assertTrue(p.matcher(bd.getContents()).find());
+		assertNotNull(bd2.getContents());
+		assertTrue(p.matcher(bd2.getContents()).find());
 	}
 
 	@Test

@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.tlw.bottletracker.PropertyReader;
+import com.tlw.bottletracker.util.PropertyReader;
 
 public class EmailRepositoryServiceTest {
 

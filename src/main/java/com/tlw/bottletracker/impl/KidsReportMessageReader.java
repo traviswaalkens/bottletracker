@@ -1,4 +1,4 @@
-package com.tlw.bottletracker;
+package com.tlw.bottletracker.impl;
 
 import java.io.IOException;
 
@@ -7,6 +7,8 @@ import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
+
+import com.tlw.bottletracker.MessageReader;
 
 abstract public class KidsReportMessageReader implements MessageReader {
 
