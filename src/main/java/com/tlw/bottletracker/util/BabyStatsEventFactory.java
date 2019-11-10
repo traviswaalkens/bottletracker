@@ -51,6 +51,8 @@ public class BabyStatsEventFactory {
 
 		// TODO throw exception if the token or id have not been set.
 
+		LOG.debug("Converting {} data", msgData.getType());
+
 		Function<MessageData, Collection<BabyStatsEvent>> converter = getConverterMap().get(msgData.getType());
 		if (converter != null) {
 			return converter.apply(msgData);

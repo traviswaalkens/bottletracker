@@ -59,8 +59,6 @@ public class App {
 
 			emailService.connect();
 
-			// TODO (Eclipse) add code template
-
 			Message[] messages = emailService.getNewMessages();
 			LOG.info("found {} messages", messages.length);
 
@@ -71,58 +69,47 @@ public class App {
 				Address[] from = message.getFrom();
 				String subject = message.getSubject();
 
-				LOG.info("Checking- {} by {}", subject, from[0]);
+				LOG.info("Checking {}/{} email {} by {}", i + 1, max, subject, from[0]);
 
 				for (MessageReader mr : getMessageReaders()) {
+
+					LOG.debug("Trying {}", mr.getClass().getName());
 
 					// TODO extract this into a method call
 					if (mr.matches(subject, from)) {
 
+						LOG.info("Email matches filters, processing.");
+
 						MessageData md = mr.read(message);
 						if (md.isValid()) {
 
-							// TODO this now returns a collection and each event needs to be sent to
-							// babystats
-							// TODO this is no longer a factory so much as its a conversion coordinator.
 							Collection<BabyStatsEvent> babyStatEvents = babyStatsFactory.factory(md);
 
+							LOG.info("{} events ready for submission", babyStatEvents.size());
 							for (BabyStatsEvent be : babyStatEvents) {
-								// String consoleMessage;
-
-								// TODO this logging should be somwhere else.
-
-								// if ("AddFeeding".equals(be.getEvent())) {
-								// BottleEvent _be = (BottleEvent) be;
-								// consoleMessage = String.format("Feeding Event - %.2f Ounces @ %s",
-								// Float.parseFloat(_be.getBottleOunces()), be.getEventTime());
-								// } else {
-								// consoleMessage = be.getEvent();
-								// }
-
-								// LOG.info(consoleMessage);
-
-								// TODO more logging
-								// TODO this should be its own function
-
 								String result = babyStatsService.addEvent(be);
-								LOG.info(result);
+								LOG.debug("Result: {}", result);
 							}
 
+							LOG.debug("Archiving email.");
 							emailService.archiveCompletedMessage(message);
+
 						} else {
-							LOG.warn("Message doesn't match.");
+							LOG.warn("Matched message is invalid.");
 							LOG.debug(md.getNotes());
 							LOG.debug(md.getContents());
 						}
 
 						break;
 					} else {
+						LOG.info("Email does not match.");
+						LOG.debug("Archiving email");
 						emailService.archiveNoiseMessage(message);
 					}
 				}
 			}
 
-			LOG.info("Done.");
+			LOG.info("No more emails.");
 
 		} catch (NoSuchProviderException nspe) {
 			LOG.error("invalid provider name");
@@ -138,7 +125,6 @@ public class App {
 	}
 
 	private static List<MessageReader> getMessageReaders() {
-		// TODO why is this not allowing ArrayList<>
 		List<MessageReader> readers = new ArrayList<MessageReader>();
 		// readers.add(new DiaperMessageReader());
 		readers.add(new BottleMessageReader());

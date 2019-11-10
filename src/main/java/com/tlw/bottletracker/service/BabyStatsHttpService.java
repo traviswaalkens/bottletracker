@@ -2,6 +2,9 @@ package com.tlw.bottletracker.service;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -11,6 +14,7 @@ import com.squareup.okhttp.Response;
 import com.tlw.bottletracker.dto.BabyStatsEvent;
 
 public class BabyStatsHttpService {
+	public static Logger LOG = LoggerFactory.getLogger(BabyStatsHttpService.class);
 	private String url;
 
 	public void setUrl(String url) {
@@ -19,6 +23,7 @@ public class BabyStatsHttpService {
 
 	public String addEvent(BabyStatsEvent event) throws IOException {
 
+		LOG.info("Submitting {} event to BabyStats for account {}.", event.getEvent(), event.getId());
 		ObjectMapper om = new ObjectMapper();
 		String json = om.writeValueAsString(event);
 

@@ -10,14 +10,20 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tlw.bottletracker.dto.BottleData;
 import com.tlw.bottletracker.dto.MessageData;
 
 public class BottleMessageReader extends KidsReportMessageReader {
+	public static final Logger LOG = LoggerFactory.getLogger(BottleMessageReader.class);
 
 	private static String subjectPattern = "Bottle Event Alert";
 
 	public boolean matches(String subject, Address[] from) {
+
+		LOG.debug("Matching subject {} to {}.", subject, subjectPattern);
 		if (!subjectPattern.equals(subject)) {
 			return false;
 		}

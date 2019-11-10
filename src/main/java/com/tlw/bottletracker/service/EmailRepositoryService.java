@@ -89,7 +89,7 @@ public class EmailRepositoryService {
 
 	public void connect() throws NoSuchProviderException, MessagingException {
 
-		LOG.info("Connecting to ", username, "@", host, "(", port, ")");
+		LOG.info("Connecting to {}@{}({})", username, host, port);
 		Properties p = new Properties();
 		Session session = Session.getDefaultInstance(p, null);
 		store = session.getStore(provider);
@@ -114,7 +114,7 @@ public class EmailRepositoryService {
 
 	public void disconnect() throws MessagingException {
 
-		LOG.info("Disconecting ", host);
+		LOG.info("Disconecting {}", host);
 		inbox.close(false);
 		noiseArchive.close(false);
 		completedArchive.close(false);
@@ -127,7 +127,7 @@ public class EmailRepositoryService {
 			connect();
 		}
 
-		LOG.info("Archiving message to ", noiseArchive.getName());
+		LOG.info("Archiving message to {}", noiseArchive.getName());
 		Message[] tempMessages = new Message[] { m };
 		inbox.copyMessages(tempMessages, noiseArchive);
 		// TODO only delete if copy succeeds. How to tell if copy worked?
@@ -139,7 +139,7 @@ public class EmailRepositoryService {
 			connect();
 		}
 
-		LOG.info("Archiving message to ", completedArchive.getName());
+		LOG.info("Archiving message to {}", completedArchive.getName());
 		Message[] tempMessages = new Message[] { m };
 		inbox.copyMessages(tempMessages, completedArchive);
 		// TODO only delete if copy succeeds. How to tell if copy worked?

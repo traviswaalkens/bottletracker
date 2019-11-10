@@ -8,6 +8,7 @@ import java.util.function.Function;
 import com.tlw.bottletracker.dto.BabyStatsEvent;
 import com.tlw.bottletracker.dto.MessageData;
 
+// TODO Function is for functional programming interfaces.  setId and setToken are not allowed.
 public abstract class MessageDataConverter implements Function<MessageData, Collection<BabyStatsEvent>> {
 
 	protected String id;

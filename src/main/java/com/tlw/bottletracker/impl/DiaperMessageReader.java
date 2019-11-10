@@ -24,6 +24,8 @@ public class DiaperMessageReader extends KidsReportMessageReader {
 	private static String subjectPattern = "Diaper Event Alert";
 
 	public boolean matches(String subject, Address[] from) {
+
+		LOG.debug("Matching subject {} to {}.", subject, subjectPattern);
 		if (!subjectPattern.equals(subject)) {
 			return false;
 		}
